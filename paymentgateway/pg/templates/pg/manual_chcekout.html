@@ -1,0 +1,49 @@
+<button id="rzp-button1">Pay here manual</button>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var razorpay = new Razorpay({
+        key: 'rzp_test_Vg4TId4a7WErvz',
+        image: 'https://i.imgur.com/n5tjHFD.png',
+});
+var data = {
+    amount: "{{ amount }}", // in currency subunits. Here 1000 = 1000 paise, which equals to ₹10
+    currency: "INR",// Default is INR. We support more than 90 currencies.
+    email: 'gaurav.kumar@example.com',
+    contact: '9123456780',
+    notes: {
+        address: 'Ground Floor, SJR Cyber, Laskar Hosur Road, Bengaluru',  },
+    order_id: '{{ order_id}}',// Replace with Order ID generated in Step 4
+    method: 'netbanking',  // method specific fields
+    bank: 'HDFC'};
+var btn = document.querySelector('#rzp-button1');
+btn.addEventListener('click', function(){
+  // has to be placed within user initiated context, such as click, in order for popup to open.
+  razorpay.createPayment(data);
+
+  razorpay.on('payment.success', function(resp) {
+
+    alert("payment_id"+ resp.razorpay_payment_id),
+    alert("order_id"+resp.razorpay_order_id),
+    alert("signature : "+ resp.razorpay_signature)
+    return(
+    $.ajax({
+      type: "POST",
+      url: "/done/",
+      data: {
+        'payment_id': resp.razorpay_payment_id // from form
+      },
+      success: function () {
+        alert("hi......")
+      },
+      error: function () {
+        alert("hi......22222")
+      }
+
+    })
+    )// will pass payment ID, order ID, and Razorpay signature to success handler.
+
+  razorpay.on('payment.error', function(resp){alert(resp.error.description)}); // will pass error object to error handler
+})
+});
+</script>
+

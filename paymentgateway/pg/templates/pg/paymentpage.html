@@ -1,0 +1,32 @@
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+</head>
+<body>
+    <div><h2>Thankyou for shopping with us, </h2><br>
+    Kindly Make payment below to place order
+        <br><br>
+    </div>
+    <form action="{% url 'payment' %}" method="POST">{% csrf_token %}
+        <script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            data-order_id={{order_id}}
+            data-buttontext="Pay with Razorpay"
+            data-key={{key_id}}
+            data-amount={{amount}}
+            data-name="Shivani Mishra"
+            data-description="PG integration"
+            data-image=" "
+            data-netbanking="true"
+            data-description="Demo Integration"
+            data-prefill.name="Shivani mishra"
+            data-prefill.email="shivmish888@gmail.com"
+            data-prefill.contact="88888888888"
+            >
+        </script>
+        <input type="hidden" name="order_id" value={{order_id}}>
+        <input type="hidden" name="key_id" value={{key}}>
+        <input type="hidden" name="key_secret" value={{secret}}>
+    </form>
+</body>
+</html>

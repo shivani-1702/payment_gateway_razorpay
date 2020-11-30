@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <h3>enter adress details</h3>
+    <form action="{% url 'response' %}" method="post"> {% csrf_token %}
+        <input type="hidden" name="amount" id="amount" value="500">
+        <div>
+            <label for="name">name</label>
+            <input type="text" id="name" name="name">
+            <label for="address">address</label>
+            <input type="text" id="address" name="address">
+            <label for="email">email</label>
+            <input type="email" id="email" name="email">
+            <label for="contact">contact</label>
+            <input type="number" id="contact" name="contact">
+            <BR>
+            <button type="submit">Place order</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
