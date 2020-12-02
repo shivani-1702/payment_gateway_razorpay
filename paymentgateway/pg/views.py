@@ -1,4 +1,5 @@
 import time
+from django.http import HttpResponse, HttpResponseNotFound
 
 import razorpay
 from django.shortcuts import render
@@ -139,16 +140,24 @@ def manual(request):
 
 def reverse(request):
     if request.method=='POST':
-        #time.sleep(30)
-        print(request, "=====request=====")
         payment_id = request.POST.get('payment_id')
-        print(payment_id, "=====payment_id====")
+        order_id = request.POST.get('order_id')
+
         data={'payment_id': payment_id}
+        print(payment_id,"line 147")
+        print(order_id)
         a=client.transfer.all(data)
+        print(a,"line 150")
         for i in a['items']:
-            print(i, "--------")
-        data={"amount": 100,
-            "reverse_all": 1}
-        a=client.transfer.reverse(payment_id, data)
-        print(a)
-    return render(request, HttpResponse('OKAy...'))
+           if(i['source']==order_id):
+               print(i['id'])
+               trf_id=i['id']
+               data1={'amount':1000}
+               b=client.transfer.reverse(trf_id,data1)
+               print(b)
+               print("reversed")
+        # data={"amount": 100,
+        #    "reverse_all": 1}
+        # a=client.transfer.reverse(payment_id, data)
+        # print(a)
+        return HttpResponse('<h1>found</h1>')
