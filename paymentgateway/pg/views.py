@@ -60,7 +60,7 @@ def order(request):
         # DATA = {'amount': amount_inr, 'currency': 'INR', 'receipt': order.order_id, 'payment_capture': '1',
         #                'notes': dict}
 
-        order_created= client.order.create(data=DATA)
+        order_created= client.order.create(data=DATA) #dynamic order create
 
         print(order_created, type(order_created), "-----order created-----")
         global order_id_server, amount_paid
@@ -90,7 +90,7 @@ def payment(request):
         signature= request.POST.get('razorpay_signature')
         print(payment_id,order_id_server, signature, "-----")
         params_dict = {
-            'razorpay_order_id': order_id_server, # server_side
+            'razorpay_order_id': order_id_server, #server_side if order id not passed still payment will be done and it will fail in verification step
             'razorpay_payment_id': payment_id,
             'razorpay_signature': signature
         }
@@ -139,16 +139,59 @@ def manual(request):
 
 def reverse(request):
     if request.method=='POST':
-        #time.sleep(30)
-        print(request, "=====request=====")
         payment_id = request.POST.get('payment_id')
-        print(payment_id, "=====payment_id====")
+        order_id = request.POST.get('order_id')
         data={'payment_id': payment_id}
+        print(payment_id,"line 147")
+        print(order_id)
         a=client.transfer.all(data)
+        print(a,"line 150")
         for i in a['items']:
-            print(i, "--------")
-        data={"amount": 100,
-            "reverse_all": 1}
-        a=client.transfer.reverse(payment_id, data)
-        print(a)
-    return render(request, HttpResponse('OKAy...'))
+           if(i['source']==order_id):
+               print(i['id'])
+               trf_id=i['id']
+               data1={'amount':1000}
+               b=client.transfer.reverse(trf_id,data1)
+               print(b)
+               print("reversed")
+        # data={"amount": 100,
+        #    "reverse_all": 1}
+        # a=client.transfer.reverse(payment_id, data)
+        # print(a)
+        return HttpResponse('<h1>found</h1>')
+
+def subscription(request):
+    if request.method=='POST':
+        name = request.POST.get('name','')
+        address = request.POST.get('address','')
+        email = request.POST.get('email','')
+        contact = request.POST.get('contact','')
+        amount = request.POST.get('amount','')
+        Data={
+                "plan_id": "plan_GA2q9SFdKRk1tW", #plan_id
+                "total_count": 6,
+                "quantity": 1,
+                "customer_notify": 1,
+                "addons": [
+                    {
+                        "item": {
+                            "name": "Registration-one time",
+                            "amount": 10000,
+                            "currency": "INR"
+                        }
+                    }
+                ],
+                "notes": {
+                    "notes_key_1": "Tea, Earl Grey, Hot",
+                    "notes_key_2": "Tea, Earl Grey… decaf."
+                }
+            }
+
+        subscription_create = client.subscription.create(data=Data)
+        print(subscription_create, "=====subscription====")
+        para={'order_id' : subscription_create.get('id'),
+        'plan_id': subscription_create.get('plan_id'),
+        'key_id':key_id,
+        'key_secret':key_secret}
+        print(para, "para-----")
+        return render(request, 'pg/handler_subscription.html', para)
