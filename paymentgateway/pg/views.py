@@ -180,7 +180,7 @@ def create_plan(request):
     return(create_plan)
 
 def subscription(request):
-    plan = create_plan(request)
+    #plan = create_plan(request)
     if request.method=='POST':
         name = request.POST.get('name','')
         address = request.POST.get('address','')
@@ -188,7 +188,8 @@ def subscription(request):
         contact = request.POST.get('contact','')
         amount = request.POST.get('amount','')
         Data={
-                "plan_id": plan.get('id'), #plan_id
+                #"plan_id": plan.get('id'), #plan_id dynamic
+                "plan_id":"plan_GA43WyGstP08Ve",
                 "total_count": 6,
                 "quantity": 1,
                 "customer_notify": 1,
