@@ -160,7 +160,27 @@ def reverse(request):
         # print(a)
         return HttpResponse('<h1>found</h1>')
 
+def create_plan(request):
+    data = {
+  "period": "weekly",
+  "interval": 1,
+  "item": {
+    "name": "Test plan - Weekly",
+    "amount": 69900,
+    "currency": "INR",
+    "description": "Description for the test plan"
+  },
+  "notes": {
+    "notes_key_1": "Tea, Earl Grey, Hot",
+    "notes_key_2": "Tea, Earl Grey… decaf."
+  }
+}
+    create_plan = client.plan.create(data)
+    print(create_plan, "plan--------")
+    return(create_plan)
+
 def subscription(request):
+    #plan = create_plan(request)
     if request.method=='POST':
         name = request.POST.get('name','')
         address = request.POST.get('address','')
@@ -168,7 +188,8 @@ def subscription(request):
         contact = request.POST.get('contact','')
         amount = request.POST.get('amount','')
         Data={
-                "plan_id": "plan_GA2q9SFdKRk1tW", #plan_id
+                #"plan_id": plan.get('id'), #plan_id dynamic
+                "plan_id":"plan_GA43WyGstP08Ve",
                 "total_count": 6,
                 "quantity": 1,
                 "customer_notify": 1,
