@@ -1,19 +1,23 @@
 <button id="rzp-button1">Pay now</button>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+{{order_id}}
 <script>
 var options = {
-    "key": "rzp_test_Vg4TId4a7WErvz",
+    "key": "rzp_test_FsRGzuburmgNQL",
     "amount": "50000",
     "currency": "INR",
     "name": "Acme Corp",
     "description": "Test Transaction",
-    "order_id": "{{ order_id }}",
+    "order_id": "{{order_id}}",
+    "customer_id": "cust_GA61O4GncCbw99",
+    "recurring": "1",
     "image": "https://example.com/your_logo",
     "handler": function (response){
         alert("payment_id " + response.razorpay_payment_id);
         alert("order_id "+response.razorpay_order_id);
-       alert("signature "+ response.razorpay_signature)
+        alert("signature "+ response.razorpay_signature)
+       /*
        data={'payment_id':response.razorpay_payment_id,'order_id':response.razorpay_order_id}
         $.ajax({
         url: "http://127.0.0.1:8000/reverse/",
@@ -29,7 +33,22 @@ var options = {
             alert("Reverse failed")
                 }
                 })
-
+          */
+         data={'payment_id':response.razorpay_payment_id,'order_id':response.razorpay_order_id}
+        $.ajax({
+        url: "http://127.0.0.1:8000/recurpay/",
+        headers: {
+        'X-CSRFToken': "{{csrf_token}}"
+                },
+            type:"post",
+            data: data,
+            success:function(res){
+             alert("Recur Payment Completed")
+                },
+            error:function(error){
+            alert("Recur Payment failed")
+                }
+                })
     },
     "notes": {
         "address": "Razorpay Corporate Office"

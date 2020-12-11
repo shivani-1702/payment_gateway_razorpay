@@ -22,6 +22,35 @@
             <button type="submit">Place order</button>
         </div>
     </form>
+    <br>
+    <form action="{% url 'register1' %}" method="post"> {% csrf_token %}
+        <div>
+            <label for="aname">name</label>
+            <input type="text" id="aname" name="aname">
+            <label for="aemail">email</label>
+            <input type="email" id="aemail" name="aemail">
+            <label for="acontact">contact</label>
+            <input type="number" id="acontact" name="acontact">
+            <label for="auth_type">Select Type of Authentication:</label>
+            <br>
+             <select name="auth_type" id="auth_type">
+                    <option value="debitcard">Debit Card</option>
+                    <option value="netbanking">Net Banking</option>
+                     <option value="aadhar">Aadhar Card</option>
+             </select>
+            <br>
+            <label for="acno">Account Number</label>
+            <input type="number" id="acno" name="acno">
+            <label for="ifsc">IFSC</label>
+            <input type="text" id="ifsc" name="ifsc">
+            <label for="type">Account Type</label>
+            <select name="type" id="type">
+                    <option value="savings">Savings Account</option>
+                     <option value="current">Current Account</option>
+             </select>
+            <button type="submit">Get registration Link</button>
+        </div>
+    </form>
 </div>
 </body>
 </html>

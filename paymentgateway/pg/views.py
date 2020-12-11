@@ -1,20 +1,22 @@
+import json
 import time
-
+import requests
 import razorpay
-from django.shortcuts import render
+from requests.auth import HTTPBasicAuth
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.template.context_processors import csrf
 
-from .models import Orders
+# from .models import Orders
 from django.http import HttpResponse
 
 
-client = razorpay.Client(auth=("rzp_test_Vg4TId4a7WErvz", "eiTX74Hru52sMVOs2Bp5HPJo")) #basic authentication , without auth , will never pass the gateway, between merchnact and razorpay
+client = razorpay.Client(auth=("rzp_test_vZmsDFpMF5F89l", "zNdyT0tcE5lDFxh8u5fR9YTP")) #basic authentication , without auth , will never pass the gateway, between merchnact and razorpay
 
 
 
-key_id ='rzp_test_Vg4TId4a7WErvz'
-key_secret='eiTX74Hru52sMVOs2Bp5HPJo'
+key_id ='rzp_test_vZmsDFpMF5F89l'
+key_secret='zNdyT0tcE5lDFxh8u5fR9YTP'
 
 # Create your views here.
 def index(request):
@@ -32,7 +34,7 @@ def order(request):
         amount_inr = int(amount)*100
         transfers= [
             {
-                "account": "acc_G6Arrf7RMyX7Rf",
+                "account": "acc_G5mEbtU0rtEwnK",
                 "amount": 1000,
                 "currency": "INR",
                 "notes": {
@@ -116,6 +118,7 @@ def payment(request):
                 "on_hold": 1,
                 "on_hold_until": 1671222870
             }
+
         ]}
         transfers= client.transfer.create(data)
         print("=====transfer===", transfers)
@@ -189,7 +192,7 @@ def subscription(request):
         amount = request.POST.get('amount','')
         Data={
                 #"plan_id": plan.get('id'), #plan_id dynamic
-                "plan_id":"plan_GA43WyGstP08Ve",
+                "plan_id":"plan_G8rXzSSCxJkf8a",
                 "total_count": 6,
                 "quantity": 1,
                 "customer_notify": 1,
@@ -216,3 +219,160 @@ def subscription(request):
         'key_secret':key_secret}
         print(para, "para-----")
         return render(request, 'pg/handler_subscription.html', para)
+
+def mandateLinkRegistration(request):
+    if request.method=="POST":
+        name=request.POST.get("aname")
+        email=request.POST.get("aemail")
+        phone=request.POST.get("acontact")
+        acno=request.POST.get("acno")
+        ifsc=request.POST.get("ifsc")
+        type=request.POST.get("type")
+        auth_type=request.POST.get("auth_type")
+        #print(name,email,phone,acno,ifsc,type,auth_type)
+        data={
+            "customer": {
+                "name": str(name),
+                "email": str(email),
+                "contact": str(phone)
+            },
+            "type": "link",
+            "amount": 0,
+            "currency": "INR",
+            "description": "12 p.m. Meals",
+            "subscription_registration": {
+                "method": "emandate",
+                "auth_type": str(auth_type),
+                "expire_at": 1607936458,
+                "max_amount": 90000,
+                "bank_account": {
+                    "beneficiary_name": str(name),
+                    "account_number": str(acno),
+                    "account_type": str(type),
+                    "ifsc_code": str(ifsc)
+                }
+            },
+            "receipt": "Receipt no. 102",
+            "expire_by": 1607936458,
+            "sms_notify": 1,
+            "email_notify": 1,
+            "notes": {
+                "note_key 1": "Beam me up Scotty",
+                "note_key 2": "Tea. Earl Gray. Hot."
+            }
+        }
+        data_json=json.dumps(data)
+        # print("------",json.dump(data))
+        # reso=client.invoice.create(data)
+        # print(reso)
+        # urlr=reso['short_url']
+        try:
+            res=requests.post('https://api.razorpay.com/v1/subscription_registration/auth_links',auth=HTTPBasicAuth("rzp_test_FsRGzuburmgNQL","9pfZbqM2JRRHoNnfXzYVtOmo"),data=data_json)
+            print(res.text)
+            urlr=res.body["short_url"]
+        except Exception as e:
+            print(e)
+        # try:
+        #     res=requests.post('https://api.razorpay.com/v1/orders',auth=HTTPBasicAuth("rzp_test_FsRGzuburmgNQL","9pfZbqM2JRRHoNnfXzYVtOmo"),data={"amount":"1000","currency":"INR"})
+        #     print(res.text)
+        #     urlr=res.body["short_url"]
+        # except Exception as e:
+        #     print(e)
+        print(urlr)
+        return redirect(urlr)
+def mandateregistrationorder(request):
+    if request.method=="POST":
+        client1 = razorpay.Client(auth=("rzp_test_FsRGzuburmgNQL", "9pfZbqM2JRRHoNnfXzYVtOmo"))
+        name = request.POST.get("aname")
+        email = request.POST.get("aemail")
+        phone = request.POST.get("acontact")
+        acno = request.POST.get("acno")
+        ifsc = request.POST.get("ifsc")
+        type = request.POST.get("type")
+        auth_type = request.POST.get("auth_type")
+        data={
+
+                "amount": 0,
+                "currency": "INR",
+                "method": "emandate",
+                "payment_capture": "1",
+                "customer_id": "cust_GA61O4GncCbw99",
+                "receipt": "Receipt No. 1",
+                "notes": {
+                    "notes_key_1": "Beam me up Scotty",
+                    "notes_key_2": "Engage"
+                },
+                "token": {
+                    "auth_type": auth_type,
+                    "max_amount": 9999900,
+                    "expire_at": 4102444799,
+                    "notes": {
+                        "notes_key_1": "Tea, Earl Grey, Hot",
+                        "notes_key_2": "Tea, Earl Grey… decaf."
+                    },
+                    "bank_account": {
+                        "beneficiary_name":name,
+                        "account_number": acno,
+                        "account_type": type,
+                        "ifsc_code": ifsc
+                    }
+                }
+            }
+        order_created = client1.order.create(data=data)
+        global order_id_server1
+        order_id_server1 = order_created.get('id')
+        print("-----------inside mandate order--------")
+        print(order_created)
+        para1 = {'order_id': order_id_server1}
+        print("---para---- ")
+        print(para1)
+        return render(request, 'pg/handlerfunc.html', para1)
+
+def recurpay(request):
+    if request.method=="POST":
+        payment_id=request.POST.get('payment_id')
+        orders_data = {
+            "amount": 200000,
+            "currency": "INR",
+            "payment_capture": "1",
+            "receipt": "Receipt No. 1",
+        }
+        client1 = razorpay.Client(auth=("rzp_test_FsRGzuburmgNQL", "9pfZbqM2JRRHoNnfXzYVtOmo"))
+        res1=client1.order.create(data=orders_data)
+        print(payment_id)
+        url="https://api.razorpay.com/v1/payments/{}".format(payment_id)
+        print(url)
+        res=requests.get(url,auth=HTTPBasicAuth("rzp_test_FsRGzuburmgNQL","9pfZbqM2JRRHoNnfXzYVtOmo"))
+        response_dict = json.loads(res.text)
+        print(response_dict['id'])
+        token_id=response_dict['token_id']
+        email=response_dict['email']
+        contact=response_dict['contact']
+        customer_id=response_dict['customer_id']
+        print("Token details etc")
+        print(token_id,email,contact,customer_id)
+        recur_data = {
+                "email": email,
+                "contact": contact[3:],
+                "amount": 200000,
+                "currency": "INR",
+                "order_id": res1.get("id"),
+                "customer_id": customer_id,
+                "token": token_id,
+                "recurring": "1",
+                "description": "Creating recurring payment for Gaurav Kumar",
+                # "notes": {
+                #     "note_key 1": "Beam me up Scotty",
+                #     "note_key 2": "Tea. Earl Gray. Hot."
+                # }
+            }
+        print(recur_data)
+        recurpayres=requests.post('https://api.razorpay.com/v1/payments/create/recurring/',auth=HTTPBasicAuth("rzp_test_FsRGzuburmgNQL","9pfZbqM2JRRHoNnfXzYVtOmo"),data=recur_data)
+        respon = json.loads(recurpayres.text)
+        if(respon['razorpay_payment_id']):
+            print("Done")
+            print(respon['razorpay_payment_id'])
+        else:
+            print("Failed")
+
+    return render(request,"pg/done.html")
